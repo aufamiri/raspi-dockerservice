@@ -1,0 +1,17 @@
+http:
+  middlewares:
+    simpleAuth:
+      basicAuth:
+        users:
+          - "admin:"
+
+  routers:
+    api:
+      rule: "Host(`monitoring.sayaingin.top`)"
+      entrypoints: websecure
+      middlewares: simpleAuth
+      service: api@internal
+      tls:
+        certResolver: lets-encrypt
+
+

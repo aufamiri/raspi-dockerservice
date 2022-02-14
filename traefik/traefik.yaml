@@ -1,0 +1,40 @@
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: "websecure"
+          scheme: "https"
+  websecure:
+    address: ":443"
+  dns-tcp:
+    address: ":53"
+  dns-udp:
+    address: ":53/udp"
+
+api:
+  dashboard: true
+
+log:
+  level: DEBUG
+
+providers:
+  docker:
+    watch: true
+    network: external
+  file:
+    filename: traefik_dynamic.yaml
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      email: aufa.nabil.amiri@gmail.com
+      storage: acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
+        disablePropagationCheck: true
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"

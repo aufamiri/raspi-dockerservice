@@ -1,0 +1,94 @@
+version: '3.9'
+
+services:
+  db:
+    image: linuxserver/mariadb:latest
+    container_name: nextcloud-db
+    networks:
+      - nextcloud-isolated
+    restart: unless-stopped
+    volumes:
+      - nextcloud-db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - TZ=Asia/Jakarta
+
+  redis:
+    image: redis:6.2
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    networks:
+      - nextcloud-isolated
+    volumes:
+      - nextcloud-redis:/var/lib/redis
+
+  app:
+    image: nextcloud:stable
+    container_name: nextcloud-main
+    restart: unless-stopped
+    dns:
+      - 172.18.0.1
+    depends_on:
+      - redis
+      - db
+    networks:
+      - nextcloud-isolated
+      - external
+    volumes:
+      - nextcloud-main:/var/www/html
+      - nextcloud-data:/var/www/html/data
+    environment:
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+      - NEXTCLOUD_DATA_DIR=/var/www/html/data
+      - NEXTCLOUD_TRUSTED_DOMAINS=sayaingin.top 192.168.0.147 192.168.195.164
+      - TRUSTED_PROXIES=172.18.0.0/16
+      - TZ=Asia/Jakarta
+    labels:
+      - traefik.http.routers.nextcloud.middlewares=nextcloud,nextcloud_redirect
+      - traefik.http.routers.nextcloud.tls=true
+      - traefik.http.routers.nextcloud.tls.certresolver=lets-encrypt
+      - traefik.http.routers.nextcloud.rule=Host(`sayaingin.top`)
+      - traefik.http.middlewares.nextcloud.headers.customFrameOptionsValue=ALLOW-FROM https://sayaingin.top
+      - traefik.http.middlewares.nextcloud.headers.contentSecurityPolicy=frame-ancestors 'self' sayaingin.top *.sayaingin.top
+      - traefik.http.middlewares.nextcloud.headers.stsSeconds=155520011
+      - traefik.http.middlewares.nextcloud.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.nextcloud.headers.stsPreload=true
+      - traefik.http.middlewares.nextcloud.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN
+      - traefik.http.middlewares.nextcloud_redirect.redirectregex.permanent=true
+      - traefik.http.middlewares.nextcloud_redirect.redirectregex.regex=https://(.*)/.well-known/(card|cal)dav
+      - traefik.http.middlewares.nextcloud_redirect.redirectregex.replacement=https://$${1}/remote.php/dav/
+      - ofelia.enabled=true
+      - ofelia.job-exec.nginx-cron.schedule=@every 10m
+      - ofelia.job-exec.nginx-cron.command=php -f /var/www/html/cron.php
+      - ofelia.job-exec.nginx-cron.user=www-data
+
+networks:
+  external:
+    external: true
+  nextcloud-isolated:
+    driver: bridge
+
+volumes:
+  nextcloud-db:
+    driver: local
+  nextcloud-redis:
+    driver: local
+  nextcloud-main:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/pi/Services/nextcloud/web'
+  nextcloud-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/data/nextcloud'

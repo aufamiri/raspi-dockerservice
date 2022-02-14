@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: miniflux-db 
+    networks:
+      - miniflux-isolated
+    restart: unless-stopped
+    volumes:
+      - miniflux-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=
+      - POSTGRES_USER=miniflux
+
+  app:
+    image: miniflux/miniflux:latest
+    container_name: miniflux-main
+    restart: unless-stopped
+    depends_on:
+      - db
+    expose:
+      - 8080
+    dns:
+      - 172.18.0.1
+    networks:
+      - miniflux-isolated
+      - external
+    environment:
+      - DATABASE_URL=postgres://miniflux:@db/miniflux?sslmode=disable
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=heimdall
+      - ADMIN_PASSWORD=
+      - BASE_URL=https://news.sayaingin.top
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.miniflux.tls=true
+      - traefik.http.routers.miniflux.tls.certresolver=lets-encrypt
+      - traefik.http.routers.miniflux.rule=Host(`news.sayaingin.top`)
+
+networks:
+  external:
+    external: true
+  miniflux-isolated:
+    driver: bridge
+
+volumes:
+  miniflux-db:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/pi/Services/miniflux/db'

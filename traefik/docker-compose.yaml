@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  traefik:
+    image: traefik:2.5
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+      - external
+    ports:
+      - 80:80
+      - 443:443
+      - target: 53
+        published: 53
+        protocol: tcp
+      - target: 53
+        published: 53
+        protocol: udp
+    environment:
+      - CF_DNS_API_TOKEN=
+      - CLOUDFLARE_POLLING_INTERVAL=600
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/pi/Services/traefik/traefik.yaml:/traefik.yaml
+      - /home/pi/Services/traefik/traefik_dynamic.yaml:/traefik_dynamic.yaml
+      - /home/pi/Services/traefik/acme.json:/acme.json
+      - /home/pi/Services/traefik/key:/key
+
+networks:
+  external:
+    external: true
