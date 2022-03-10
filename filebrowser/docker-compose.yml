@@ -22,6 +22,7 @@ services:
       - traefik.http.routers.filebrowser.tls=true
       - traefik.http.routers.filebrowser.tls.certresolver=lets-encrypt
       - traefik.http.routers.filebrowser.rule=Host(`sayaingin.top`)
+      - traefik.http.routers.filebrowser.entrypoints=web, websecure
 
 networks:
   external:

@@ -10,8 +10,10 @@ services:
     volumes:
       - miniflux-db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD=th3AllS33ingEye5
       - POSTGRES_USER=miniflux
+    labels:
+      - traefik.enable=false
 
   app:
     image: miniflux/miniflux:latest
@@ -27,17 +29,18 @@ services:
       - miniflux-isolated
       - external
     environment:
-      - DATABASE_URL=postgres://miniflux:@db/miniflux?sslmode=disable
+      - DATABASE_URL=postgres://miniflux:th3AllS33ingEye5@db/miniflux?sslmode=disable
       - RUN_MIGRATIONS=1
       - CREATE_ADMIN=1
       - ADMIN_USERNAME=heimdall
-      - ADMIN_PASSWORD=
+      - ADMIN_PASSWORD=Inf0rm4tionVaul7
       - BASE_URL=https://news.sayaingin.top
     labels:
       - traefik.enable=true
       - traefik.http.routers.miniflux.tls=true
       - traefik.http.routers.miniflux.tls.certresolver=lets-encrypt
       - traefik.http.routers.miniflux.rule=Host(`news.sayaingin.top`)
+      - traefik.http.routers.miniflux.entrypoints=web, websecure
 
 networks:
   external:
