@@ -12,7 +12,7 @@ doLog "Subject: Weekly Script Reports"
 breakpoint
 doLog "retrieving content from outside sources"
 # shellcheck disable=SC2024
-sudo -u pi rclone sync -P drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${logFile}" 2>&1
+sudo -u pi rclone sync -q drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${logFile}" 2>&1
 doLog "retrieving content done"
 
 breakpoint
