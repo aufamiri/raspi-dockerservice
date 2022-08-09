@@ -54,7 +54,7 @@ sudo -u pi restic -r rclone:pcloud-main:backup --verbose backup /mnt/data/snapsh
 echo ""
 echo "backup to backblaze"
 
-sudo -u pi ACCOUNT_ID="${ACCOUNT_ID}" B2_ACCOUNT_KEY="${ACCOUNT_KEY}" restic -r b2:kjokkenmoddinger:backup --verbose backup /mnt/data/snapshot/sync --password-file=${pass}
+sudo -u pi B2_ACCOUNT_ID="${ACCOUNT_ID}" B2_ACCOUNT_KEY="${ACCOUNT_KEY}" restic -r b2:kjokkenmoddinger:backup --verbose backup /mnt/data/snapshot/sync --password-file=${pass}
 echo "restic backup done"
 
 echo ""
