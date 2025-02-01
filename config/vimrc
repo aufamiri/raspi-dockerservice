@@ -1,0 +1,73 @@
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Exit Vim if NERDTree is the only window remaining in the only tab.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+
+" set .md as markdown
+autocmd BufNewFile,BufRead *.md set filetype=markdown
+
+call plug#begin()
+  Plug 'preservim/nerdtree'
+  Plug 'sonph/onehalf', { 'rtp': 'vim' }
+  Plug 'https://github.com/vim-scripts/todo-txt.vim.git'
+call plug#end()
+
+let mapleader=" "
+let maplocalleader="t"
+let NERDTreeShowHidden=0
+let g:NERDTreeWinSize=25
+
+set t_Co=256
+set scrolloff=5
+set incsearch
+set ignorecase
+set smartcase
+set nocompatible
+set autoindent
+set smartindent
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set cursorline
+set number
+set nocompatible
+colorscheme onehalfdark
+filetype plugin on
+syntax on
+set guifont=JetBrains\ Mono\ 11
+
+let g:arline_theme='onehalflight'
+let g:vim_markdown_auto_insert_bullets=0
+let g:vim_markdown_new_list_item_indent=0
+au FileType markdown setlocal formatlistpat=^\\s*\\d\\+[.\)]\\s\\+\\\|^\\s*[*+~-]\\s\\+\\\|^\\(\\\|[*#]\\)\\[^[^\\]]\\+\\]:\\s | setlocal comments=n:> | setlocal formatoptions+=cn
+
+map <leader>p :NERDTreeFocus <CR>
+map <leader>P :NERDTreeClose <CR>
+map <leader>c :NERDTreeFind <CR>
+
+map gf :NERDTreeToggle <CR>
+map j gj
+map k gk
+
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+nnoremap = <c-w>>
+nnoremap - <c-w><
+nnoremap <c-w>L <c-w>x <c-w>l
+nnoremap <c-w>H <c-w><c-x> <c-w>h
+
+nnoremap <leader>s :w <CR>
+nnoremap <leader>q :q <CR>
+
+" copy and paste
+vmap <C-c> "+y
+vmap <C-x> "+c
+vmap <C-v> c<ESC>"+p
+imap <C-v> <ESC>"+pa
+
