@@ -1,0 +1,66 @@
+"" Source your .vimrc
+"source ~/.vimrc
+
+set NERDTree
+
+let mapleader=" "
+
+"" -- Suggested options --
+" Show a few lines of context around the cursor. Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=5
+
+" Do incremental searching.
+set incsearch
+set ignorecase
+set smartcase
+
+set ideajoin
+set easymotion
+
+" disable macro recording
+map q <Nop>
+
+" Don't use Ex mode, use Q for formatting.
+map <leader>f <Action>(GotoFile)
+map <leader>r <Action>(ReformatCode)
+map <leader>s <Action>(SaveAll)
+map <leader>t <Action>(Switcher)
+map <leader>q <Action>(CloseContent)
+map <leader>p ::NERDTreeFocus<CR>
+map <leader>P ::NERDTreeClose<CR>
+map <leader>c ::NERDTreeFind<CR>
+
+map ga <Action>(HideAllWindows)
+map gb <Action>(ToggleLineBreakpoint)
+map gc <Action>(CommentByLineComment)
+map gC <Action>(CommentByBlockComment)
+map gd <Action>(GotoDeclaration)
+map ge <Action>(GotoNextError)
+map gf <Action>(FindUsages)
+map gh <Action>(ShowErrorDescription)
+map gi <Action>(GotoImplementation)
+map gsb <Action>(ChooseDebugConfiguration)
+map gss <Action>(ChooseRunConfiguration)
+map gt <Action>(Switcher)
+
+map ]] <Action>(MethodDown)
+map [[ <Action>(MethodUp)
+
+map <C-w>h <Action>(SplitHorizontally)
+map <C-w>v <Action>(SplitVertically)
+
+map <C-k> <Action>(TabShiftActions.MoveFocusUp)
+map <C-j> <Action>(TabShiftActions.MoveFocusDown)
+map <C-l> <Action>(TabShiftActions.MoveFocusRight)
+map <C-h> <Action>(TabShiftActions.MoveFocusLeft)
+map <C-m> <Action>(NextTab)
+map <C-n> <Action>(PreviousTab)
+nmap <C-S-L> <Action>(TabShiftActions.ShiftRight)
+nmap <C-S-H> <Action>(TabShiftActions.ShiftLeft)
+
+map mf <Plug>(easymotion-f)
+map mt <Plug>(easymotion-F)
+
+map ff <Plug>(easymotion-w)
+map fb <Plug>(easymotion-b)
