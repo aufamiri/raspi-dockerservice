@@ -39,11 +39,11 @@ else
   exit 1
 fi
 
-breakpoint
-doLog "retrieving content from outside sources"
-# shellcheck disable=SC2024
-sudo -u pi rclone sync -q drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${LOG_FILE}" 2>&1
-doLog "retrieving content done"
+#breakpoint
+#doLog "retrieving content from outside sources"
+## shellcheck disable=SC2024
+#sudo -u pi rclone sync -q drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${LOG_FILE}" 2>&1
+#doLog "retrieving content done"
 
 breakpoint
 doLog "creating read-only btrfs snapshot to /mnt/data/snapshot/...."
