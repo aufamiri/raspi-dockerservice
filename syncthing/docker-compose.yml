@@ -1,0 +1,21 @@
+x-podman:
+  in_pod: false
+
+services:
+  syncthing:
+    image: docker.io/syncthing/syncthing:latest
+    container_name: syncthing
+    hostname: morpheus
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /media/data:/var/syncthing
+    network_mode: host
+    ports:
+      - 8384:8384 # Web UI
+      - 22000:22000/tcp # TCP file transfers
+      - 22000:22000/udp # QUIC file transfers
+      - 21027:21027/udp # Receive local discovery broadcasts
+    restart: unless-stopped
+    userns_mode: "keep-id:uid=1000,gid=1000"
