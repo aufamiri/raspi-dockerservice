@@ -1,68 +1,71 @@
 #!/bin/bash
 
-# create a snapshot with the current date
+#################################################################################
+# This script is used to create a btrfs snapshot, and upload it to the cloud storage provider using Restic
+#################################################################################
+
 DIR=$(dirname -- "$0")
+source "$DIR/util.sh"
+
 configFile="$DIR/config"
 
-ACCOUNT_ID=
-ACCOUNT_KEY=
+BASE_PATH='/mnt/data/sync'
+LOG_FOLDER="$DIR/logs"
+RESTIC_PASS="$DIR/pass.txt"
+RESTIC_EXCLUDE="$DIR/exclude-restic.txt"
+SUBJECT_ERROR_MAIL="weekly backup error"
+RECIPIENT_EMAIL=""
 
 if [[ -f "$configFile" ]]; then
   # shellcheck disable=SC1090
   . "$configFile"
 fi
 
-pass='/home/pi/scripts/pass.txt'
-resticExclude='/home/pi/scripts/exclude-restic.txt'
-basePath='/mnt/data/sync'
-logPath="$DIR/logs"
+# for logging, we convert the date format to use weekday name
+# so the logging will automatically rewrite itself per-week
+DATE_LOG_FILE=$(date -d "$DATE" "+%A")
+LOG_FILE="$LOG_FOLDER/$DATE_LOG_FILE.log"
+initLog "$LOG_FILE"
 
 currentDate=$(date)
-echo ""
-echo "$currentDate"
-echo ""
+doLog "$currentDate"
 
-echo "checking if the path is exist"
-if [[ -e "$basePath" ]]; then
-  echo "path detected"
+doLog "checking if the path is exist"
+if [[ -e "$BASE_PATH" ]]; then
+  doLog "path detected"
 else
-  echo "path not found"
+  doLog "path not found"
+  notifyEmail "${SUBJECT_ERROR_MAIL}" "backup path not found" "${RECIPIENT_EMAIL}"
   exit 1
 fi
 
-echo "renaming old log files"
-if [[ ! -e $logPath ]]; then
-  mkdir -p "$logPath"
-fi
+breakpoint
+doLog "retrieving content from outside sources"
+# shellcheck disable=SC2024
+sudo -u pi rclone sync -q drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${LOG_FILE}" 2>&1
+doLog "retrieving content done"
 
-mv --backup=numbered --suffix="" /home/pi/scripts/btrfs-snapshot.log /home/pi/scripts/logs/backup.log
+breakpoint
+doLog "creating read-only btrfs snapshot to /mnt/data/snapshot/...."
+# shellcheck disable=SC2024
+sudo btrfs subvolume snapshot -r /mnt/data/sync /mnt/data/snapshot/sync >>"${LOG_FILE}" 2>&1
+errorCatcher "${SUBJECT_ERROR_MAIL}" "something went wrong when snapshotting" "${RECIPIENT_EMAIL}"
+doLog "btrfs snapshotting done"
 
-echo ""
-echo ""
-echo "create btrfs snapshot to /mnt/data/snapshot/nextcloud...."
-sudo btrfs subvolume snapshot /mnt/data/sync /mnt/data/snapshot/sync
-echo "btrfs snapshotting done"
+breakpoint
+doLog "starting restic backup... "
 
-echo ""
-echo ""
-echo "starting restic backup... "
+doLog "backing-up to pcloud"
+# shellcheck disable=SC2024
+sudo -u pi restic -r rclone:pcloud-main:newBackup --verbose backup /mnt/data/snapshot/sync --exclude-file="${RESTIC_EXCLUDE}" --password-file="${RESTIC_PASS}" >>"${LOG_FILE}" 2>&1
+errorCatcher "${SUBJECT_ERROR_MAIL}" "restic backup fail" "${RECIPIENT_EMAIL}"
+doLog "restic backup done"
 
-echo ""
-echo "backup to pcloud"
-sudo -u pi restic -r rclone:pcloud-main:backup --verbose backup /mnt/data/snapshot/sync --exclude-file=${resticExclude} --password-file=${pass}
+breakpoint
+doLog "deleting btrfs snapshot"
+# shellcheck disable=SC2024
+sudo btrfs subvolume delete /mnt/data/snapshot/sync >>"${LOG_FILE}" 2>&1
+errorCatcher "${SUBJECT_ERROR_MAIL}" "something went wrong went deleting btrfs snapshot" "${RECIPIENT_EMAIL}"
+doLog "btrfs delete done"
 
-echo ""
-echo "backup to backblaze"
-
-sudo -u pi B2_ACCOUNT_ID="${ACCOUNT_ID}" B2_ACCOUNT_KEY="${ACCOUNT_KEY}" restic -r b2:kjokkenmoddinger:backup --verbose backup /mnt/data/snapshot/sync --password-file=${pass}
-echo "restic backup done"
-
-echo ""
-echo ""
-echo "deleting btrfs snapshot"
-sudo btrfs subvolume delete /mnt/data/snapshot/sync
-echo "btrfs delete done"
-
-echo ""
-echo ""
 echo "closing script"

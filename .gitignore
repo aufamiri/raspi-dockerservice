@@ -1,3 +1,5 @@
 *.db
 pihole/pihole/*.db
 .idea
+config
+pass.txt
