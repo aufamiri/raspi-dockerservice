@@ -36,12 +36,12 @@ sudo smartctl -a -f brief /dev/sdb >>"${LOG_FILE}" 2>&1
 breakpoint
 doLog "removing >1 months snapshots"
 # shellcheck disable=SC2024
-sudo -u pi restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" forget --keep-last 10 --prune >>"${LOG_FILE}" 2>&1
+sudo -u morpheus restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" forget --keep-last 10 --prune >>"${LOG_FILE}" 2>&1
 
 breakpoint
 doLog "running integrity checks on remote snapshots"
 # shellcheck disable=SC2024
-sudo -u pi restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" check --read-data-subset=1/10 >>"${LOG_FILE}" 2>&1
+sudo -u morpheus restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" check --read-data-subset=5/10 >>"${LOG_FILE}" 2>&1
 
 breakpoint
 doLog "reading and clearing dmesg message"
