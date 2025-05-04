@@ -41,7 +41,7 @@ sudo -u morpheus restic -r rclone:pcloud-main:newBackup --password-file="${RESTI
 breakpoint
 doLog "running integrity checks on remote snapshots"
 # shellcheck disable=SC2024
-sudo -u morpheus restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" check --read-data-subset=5/10 >>"${LOG_FILE}" 2>&1
+sudo -u morpheus restic -r rclone:pcloud-main:newBackup --password-file="${RESTIC_PASS}" check --read-data-subset=1/10 >>"${LOG_FILE}" 2>&1
 
 breakpoint
 doLog "reading and clearing dmesg message"
@@ -50,4 +50,4 @@ sudo dmesg -c >>"${LOG_FILE}" 2>&1
 
 breakpoint
 doLog "sending mail to master"
-sudo cat "${LOG_FILE}" | sudo -u pi msmtp --from=default -t "${RECIPIENT_EMAIL}"
+sudo cat "${LOG_FILE}" | sudo -u morpheus msmtp --from=default -t "${RECIPIENT_EMAIL}"
