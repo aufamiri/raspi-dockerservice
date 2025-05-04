@@ -26,7 +26,7 @@ fi
 # so the logging will automatically rewrite itself per-week
 DATE_LOG_FILE=$(date -d "$DATE" "+%A")
 LOG_FILE="$LOG_FOLDER/$DATE_LOG_FILE.log"
-in/itLog "$LOG_FILE"
+initLog "$LOG_FILE"
 
 currentDate=$(date)
 doLog "$currentDate"
