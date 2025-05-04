@@ -22,7 +22,7 @@ function notifyEmail {
   SUBJECT=${1}
   BODY=${2}
   RECIPIENT_EMAIL=${3}
-  printf "Subject: %s\n\n%s" "${SUBJECT}" "${BODY}" | sudo -u pi msmtp --from=default -t "${RECIPIENT_EMAIL}"
+  printf "Subject: %s\n\n%s" "${SUBJECT}" "${BODY}" | sudo -u morpheus msmtp --from=default -t "${RECIPIENT_EMAIL}"
 }
 
 # catch error from command in the previous line

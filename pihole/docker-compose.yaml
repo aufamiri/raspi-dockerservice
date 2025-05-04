@@ -37,8 +37,8 @@ services:
       # If using Docker's default `bridge` network setting the dns listening mode should be set to 'all'
       FTLCONF_dns_listeningMode: 'all'
     volumes:
-      - './pihole/:/etc/pihole/'
-      - './dnsmasq.d/:/etc/dnsmasq.d/'
+      - './volume/pihole/:/etc/pihole/'
+      - './volume/dnsmasq.d/:/etc/dnsmasq.d/'
     labels:
       - traefik.enable=true
       - traefik.http.routers.pihole.tls=true

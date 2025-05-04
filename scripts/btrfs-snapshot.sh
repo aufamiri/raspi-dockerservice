@@ -10,6 +10,7 @@ source "$DIR/util.sh"
 configFile="$DIR/config"
 
 BASE_PATH='/mnt/data/sync'
+SNAPSHOT_PATH='/mnt/data/snapshot/sync'
 LOG_FOLDER="$DIR/logs"
 RESTIC_PASS="$DIR/pass.txt"
 RESTIC_EXCLUDE="$DIR/exclude-restic.txt"
@@ -25,7 +26,7 @@ fi
 # so the logging will automatically rewrite itself per-week
 DATE_LOG_FILE=$(date -d "$DATE" "+%A")
 LOG_FILE="$LOG_FOLDER/$DATE_LOG_FILE.log"
-initLog "$LOG_FILE"
+in/itLog "$LOG_FILE"
 
 currentDate=$(date)
 doLog "$currentDate"
@@ -48,7 +49,7 @@ fi
 breakpoint
 doLog "creating read-only btrfs snapshot to /mnt/data/snapshot/...."
 # shellcheck disable=SC2024
-sudo btrfs subvolume snapshot -r /mnt/data/sync /mnt/data/snapshot/sync >>"${LOG_FILE}" 2>&1
+sudo btrfs subvolume snapshot -r $BASE_PATH $SNAPSHOT_PATH >>"${LOG_FILE}" 2>&1
 errorCatcher "${SUBJECT_ERROR_MAIL}" "something went wrong when snapshotting" "${RECIPIENT_EMAIL}"
 doLog "btrfs snapshotting done"
 
@@ -57,14 +58,15 @@ doLog "starting restic backup... "
 
 doLog "backing-up to pcloud"
 # shellcheck disable=SC2024
-sudo -u pi restic -r rclone:pcloud-main:newBackup --verbose backup /mnt/data/snapshot/sync --exclude-file="${RESTIC_EXCLUDE}" --password-file="${RESTIC_PASS}" >>"${LOG_FILE}" 2>&1
+# TODO: change the user to be dynamic
+sudo -u morpheus restic -r rclone:pcloud-main:newBackup --verbose backup $SNAPSHOT_PATH --exclude-file="${RESTIC_EXCLUDE}" --password-file="${RESTIC_PASS}" >>"${LOG_FILE}" 2>&1
 errorCatcher "${SUBJECT_ERROR_MAIL}" "restic backup fail" "${RECIPIENT_EMAIL}"
 doLog "restic backup done"
 
 breakpoint
 doLog "deleting btrfs snapshot"
 # shellcheck disable=SC2024
-sudo btrfs subvolume delete /mnt/data/snapshot/sync >>"${LOG_FILE}" 2>&1
+sudo btrfs subvolume delete $SNAPSHOT_PATH >>"${LOG_FILE}" 2>&1
 errorCatcher "${SUBJECT_ERROR_MAIL}" "something went wrong went deleting btrfs snapshot" "${RECIPIENT_EMAIL}"
 doLog "btrfs delete done"
 
