@@ -1,0 +1,6 @@
+**/cache
+database.db
+**/nextcloud.log
+**/nextcloud.log.*
+**/.stversions
+**/.stfolder
