@@ -145,10 +145,18 @@ from pathlib import Path
 print()
 print()
 
-mainPath = '/Users/aufaamiri/work/test-data/hello'
-p = Path(mainPath)
-if p.exists():
-    print("Path exists, skipping")
+shouldClose = False
+
+try:
+    mainPath = '/Users/aufaamiri/work/test-data/hello'
+    p = Path(mainPath)
+    if p.exists():
+        print("Path exists, skipping")
+        shouldClose = True
+except:
+    print("Error when attempting to check for path, turn on hdd-bay")
+
+if shouldClose:
     sys.exit()
 
 # NOTE the user must ensure that the serial port and baudrate are correct
