@@ -22,9 +22,7 @@ if [[ -f "$configFile" ]]; then
   . "$configFile"
 fi
 
-# for logging, we convert the date format to use weekday name
-# so the logging will automatically rewrite itself per-week
-DATE_LOG_FILE=$(date -d "$DATE" "+%A")
+DATE_LOG_FILE=$(date +%Y%m%d)
 LOG_FILE="$LOG_FOLDER/$DATE_LOG_FILE.log"
 initLog "$LOG_FILE"
 
@@ -45,6 +43,11 @@ fi
 ## shellcheck disable=SC2024
 #sudo -u pi rclone sync -q drive-personal:Apotek/ /mnt/data/sync/Apt/ >>"${LOG_FILE}" 2>&1
 #doLog "retrieving content done"
+
+breakpoint
+doLog "backing up firefly data"
+docker exec -t firefly_iii_db pg_dump -U firefly firefly > /media/data/sync/firefly/firefly-"$DATE_LOG_FILE".sql
+doLog "firefly data backup completed"
 
 breakpoint
 doLog "creating read-only btrfs snapshot to /mnt/data/snapshot/...."
