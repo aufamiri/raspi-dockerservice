@@ -46,7 +46,7 @@ fi
 
 breakpoint
 doLog "backing up firefly data"
-docker exec -t firefly_iii_db pg_dump -U firefly firefly > /media/data/sync/firefly/firefly-"$DATE_LOG_FILE".sql
+docker exec -t firefly_iii_db pg_dump -U firefly firefly > $BASE_PATH/firefly/firefly-"$DATE_LOG_FILE".sql
 doLog "firefly data backup completed"
 
 breakpoint
